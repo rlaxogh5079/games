@@ -172,7 +172,8 @@ def setting_key(connection: pymysql.connections.Connection) -> None:
     cursor = connection.cursor()
     cursor.execute("""
         ALTER TABLE `user` ADD CONSTRAINT `PK_USER` PRIMARY KEY (
-	        `user_no`
+	        `user_no`,
+            `id`
         );
     """)
     cursor.execute("""
