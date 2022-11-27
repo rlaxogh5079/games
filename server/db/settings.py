@@ -47,22 +47,24 @@ def create_user_table(connection: pymysql.connections.Connection) -> None:
         cursor = connection.cursor()
         cursor.execute("""
             CREATE TABLE `user` (
-                `user_no`	INT	NOT NULL AUTO_INCREMENT,
-                `id`	VARCHAR(15)	NOT NULL,
+                `user_no` INT UNSIGNED DEFAULT NULL AUTO_INCREMENT UNIQUE KEY,
+                `id`	VARCHAR(15)	NOT NULL PRIMARY KEY,
                 `nickname`	TEXT	NOT NULL,
                 `pwd`	VARCHAR(60)	NOT NULL,
                 `email`	TEXT	NOT NULL,
                 `phone`	VARCHAR(13)	NOT NULL,
                 `create_time`	DATETIME    DEFAULT NOW(),
                 `last_time`	DATETIME	DEFAULT NOW(),
-                `level`	INT	DEFAULT 1,
-                `exp`	BIGINT	DEFAULT 0,
-                `grade_no`	INT	NOT NULL
+                `level`	INT UNSIGNED	DEFAULT 1,
+                `exp`	INT UNSIGNED	DEFAULT 0,
+                `grade_no`	INT	UNSIGNED DEFAULT 1,
+                INDEX (user_no)
             );
         """)
         cursor.close()
 
     except pymysql.err.ProgrammingError:
+        print(pymysql.err.OperationalError)
         raise pymysql.err.ProgrammingError("'user' table already exist")
 
 
@@ -71,10 +73,10 @@ def create_game_table(connection: pymysql.connections.Connection) -> None:
         cursor = connection.cursor()
         cursor.execute("""
             CREATE TABLE `game` (
-                `game_no`	INT	NOT NULL,
+                `game_no`	INT	UNSIGNED NOT NULL PRIMARY KEY,
                 `title`	TEXT	NOT NULL,
                 `description`	TEXT	NULL	DEFAULT NULL,
-                `diff_no`	INT	NOT NULL
+                `diff_no`	INT UNSIGNED	NOT NULL
             );
         """)
         cursor.close()
@@ -88,8 +90,8 @@ def create_score_table(connection: pymysql.connections.Connection) -> None:
         cursor = connection.cursor()
         cursor.execute("""          
             CREATE TABLE `score` (
-                `game_no`	INT	NOT NULL,
-                `user_no`	INT	NOT NULL,
+                `game_no`	INT UNSIGNED	NOT NULL,
+                `user_no`	INT	UNSIGNED    NOT NULL,
                 `score`	FLOAT	NOT NULL,
                 `played_at`	DATETIME	NULL	DEFAULT NOW()
             );
@@ -105,7 +107,7 @@ def create_difficulty_table(connection: pymysql.connections.Connection) -> None:
         cursor = connection.cursor()
         cursor.execute("""
             CREATE TABLE `difficulty` (
-                `diff_no`	INT	NOT NULL,
+                `diff_no`	INT UNSIGNED NOT NULL PRIMARY KEY,
                 `difficulty_name`	TEXT	NOT NULL
             );
         """)
@@ -126,7 +128,7 @@ def create_user_grade_table(connection: pymysql.connections.Connection) -> None:
         cursor = connection.cursor()
         cursor.execute("""
             CREATE TABLE `user_grade` (
-                `grade_no`	INT	NOT NULL,
+                `grade_no`	INT	UNSIGNED NOT NULL PRIMARY KEY,
                 `grade_name`	TEXT	NOT NULL
             );     
         """)
@@ -147,8 +149,8 @@ def create_exp_table(connection: pymysql.connections.Connection) -> None:
     cursor = connection.cursor()
     cursor.execute("""
         CREATE TABLE `exp`(
-            `level`	INT	NOT NULL,
-            `exp`	INT NOT NULL
+            `level`	INT	UNSIGNED NOT NULL PRIMARY KEY,
+            `exp`	INT UNSIGNED NOT NULL
         )
     """)
     exp_list = hash_exp()
@@ -168,36 +170,6 @@ def hash_exp() -> list:
     return exp_list
         
 
-def setting_key(connection: pymysql.connections.Connection) -> None:
-    cursor = connection.cursor()
-    cursor.execute("""
-        ALTER TABLE `user` ADD CONSTRAINT `PK_USER` PRIMARY KEY (
-            `id`
-        );
-    """)
-    cursor.execute("""
-        ALTER TABLE `game` ADD CONSTRAINT `PK_GAME` PRIMARY KEY (
-	        `game_no`
-        );
-    """)
-    cursor.execute("""
-        ALTER TABLE `difficulty` ADD CONSTRAINT `PK_DIFFICULTY` PRIMARY KEY (
-	        `diff_no`
-        );
-    """)
-    cursor.execute("""
-        ALTER TABLE `user_grade` ADD CONSTRAINT `PK_USER_GRADE` PRIMARY KEY (
-	        `grade_no`
-        );
-    """)
-    cursor.execute("""
-        ALTER TABLE `exp` ADD CONSTRAINT `PK_EXP` PRIMARY KEY (
-            `level`
-        );
-    """)
-    cursor.close()
-
-
 def setting(connection: pymysql.connections.Connection) -> None:
     if not check_exist_database(connection, "games"):
         create_database(connection)
@@ -209,6 +181,4 @@ def setting(connection: pymysql.connections.Connection) -> None:
     for table in table_list:
         if not check_exist_table(connection, table):
             eval(f"create_{table}_table(connection)")
-    
-    setting_key(connection)
 
