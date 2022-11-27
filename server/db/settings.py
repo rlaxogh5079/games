@@ -49,7 +49,7 @@ def create_user_table(connection: pymysql.connections.Connection) -> None:
             CREATE TABLE `user` (
                 `user_no` INT UNSIGNED DEFAULT NULL AUTO_INCREMENT UNIQUE KEY,
                 `id`	VARCHAR(15)	NOT NULL PRIMARY KEY,
-                `nickname`	TEXT	NOT NULL,
+                `nickname`	VARCHAR(15)	NOT NULL UNIQUE KEY ,
                 `pwd`	VARCHAR(60)	NOT NULL,
                 `email`	TEXT	NOT NULL,
                 `phone`	VARCHAR(13)	NOT NULL,
