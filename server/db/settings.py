@@ -47,7 +47,7 @@ def create_user_table(connection: pymysql.connections.Connection) -> None:
         cursor = connection.cursor()
         cursor.execute("""
             CREATE TABLE `user` (
-                `user_no`	INT	NOT NULL,
+                `user_no`	INT	NOT NULL AUTO_INCREMENT,
                 `id`	VARCHAR(15)	NOT NULL,
                 `nickname`	TEXT	NOT NULL,
                 `pwd`	VARCHAR(60)	NOT NULL,
@@ -172,7 +172,6 @@ def setting_key(connection: pymysql.connections.Connection) -> None:
     cursor = connection.cursor()
     cursor.execute("""
         ALTER TABLE `user` ADD CONSTRAINT `PK_USER` PRIMARY KEY (
-	        `user_no`,
             `id`
         );
     """)
