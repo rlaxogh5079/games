@@ -3,7 +3,7 @@ import pymysql
 
 def load_info() -> dict:
     try:
-        f = open("user_info.txt", "r")
+        f = open("db/user_info.txt", "r")
 
     except FileNotFoundError:
         raise FileNotFoundError("Don't Remove user_info.txt")
@@ -21,7 +21,12 @@ def load_info() -> dict:
 
     if len(keys) != len(values):
         raise IndexError("Please Match Keys And Values")
-
+    
+    must_info = ["host", "user", "password"]
+    for info in must_info:
+        if info not in keys:
+            raise KeyError("Insufficient information entered")
+    
     return {keys[i] : values[i] for i in range(len(keys))}
 
 
@@ -33,6 +38,7 @@ def connect_db() -> pymysql.connections.Connection:
         )
 
     except pymysql.err.OperationalError:
+        print(pymysql.err.OperationalError)
         raise pymysql.err.OperationalError("Database doesn't exist")
     
     except TypeError as err:
