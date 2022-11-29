@@ -64,7 +64,6 @@ def create_user_table(connection: pymysql.connections.Connection) -> None:
         cursor.close()
 
     except pymysql.err.ProgrammingError:
-        print(pymysql.err.OperationalError)
         raise pymysql.err.ProgrammingError("'user' table already exist")
 
 
@@ -117,6 +116,7 @@ def create_difficulty_table(connection: pymysql.connections.Connection) -> None:
             cursor.execute(
                 f"INSERT INTO `difficulty` VALUES ({idx + 1}, '{diff}');"
             )
+        connection.commit()
         cursor.close()
 
     except pymysql.err.ProgrammingError:
@@ -139,6 +139,7 @@ def create_user_grade_table(connection: pymysql.connections.Connection) -> None:
                 f"INSERT INTO `user_grade` VALUES ({idx + 1}, '{user_grade}');"
             )
         
+        connection.commit()  
         cursor.close()
         
     except pymysql.err.ProgrammingError:
@@ -146,19 +147,26 @@ def create_user_grade_table(connection: pymysql.connections.Connection) -> None:
     
 
 def create_exp_table(connection: pymysql.connections.Connection) -> None:
-    cursor = connection.cursor()
-    cursor.execute("""
-        CREATE TABLE `exp`(
-            `level`	INT	UNSIGNED NOT NULL PRIMARY KEY,
-            `exp`	INT UNSIGNED NOT NULL
-        )
-    """)
-    exp_list = hash_exp()
-    for level in range(1, 60):
-        cursor.execute(
-            f"INSERT INTO exp VALUE ({level}, {exp_list[level - 1]})"
-        )
-    cursor.close()
+    try:
+        cursor = connection.cursor()
+        cursor.execute("""
+            CREATE TABLE `exp`(
+                `level`	INT	UNSIGNED NOT NULL PRIMARY KEY,
+                `exp`	INT UNSIGNED NOT NULL
+            );
+        """)
+        
+        exp_list = hash_exp()
+        for level in range(1, 60):
+            cursor.execute(
+                f"INSERT INTO `exp` VALUES ({level}, {exp_list[level - 1]});"
+            )
+            
+        connection.commit()    
+        cursor.close()
+    
+    except pymysql.err.ProgrammingError:
+        raise pymysql.err.ProgrammingError("'exp' table already exist")
     
     
 def hash_exp() -> list:
